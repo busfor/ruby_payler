@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Alexey Vasilyev"]
   spec.email         = ["bestspajic@gmail.com"]
 
-  spec.summary       = %q{Client for Payler.}
-  spec.description   = %q{Client for Payler acquiring (payler.com).}
+  spec.summary       = %q{Ruby wrapper for Payler Gate API.}
+  spec.description   = %q{Ruby wrapper for Payler.com Gate API.}
   spec.homepage      = "https://github.com/busfor/ruby_payler"
   spec.license       = "MIT"
 
