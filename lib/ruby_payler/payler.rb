@@ -27,13 +27,14 @@ module RubyPayler
       end
     end
 
-    def start_session(order_id:, type:, cents:, currency:)
+    def start_session(order_id:, type:, cents:, currency:, lang:)
       connection.post('gapi/StartSession', {
         key: key,
         type: type,
         order_id: order_id,
         currency: currency,
         amount: cents,
+        lang: lang,
       }).body
     end
 

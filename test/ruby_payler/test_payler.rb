@@ -30,6 +30,7 @@ class RubyPaylerTest < Minitest::Test
       @order_id = "busfor_test_#{DateTime.now.strftime("%Y-%m-%d-%N")}"
       @order_amount = 111
       @order_currency = 'RUB'
+      @lang = 'ru'
       @session_id = "Filled in start_session"
     end
 
@@ -39,6 +40,7 @@ class RubyPaylerTest < Minitest::Test
         type: type,
         cents: @order_amount,
         currency: @order_currency,
+        lang: @lang,
       ).session_id
     end
 
