@@ -57,5 +57,14 @@ module RubyPayler
         amount: amount,
       }).body
     end
+
+    def retrieve(order_id, amount)
+      connection.post('gapi/Retrieve', {
+        key: key,
+        password: password,
+        order_id: order_id,
+        amount: amount,
+      }).body
+    end
   end
 end

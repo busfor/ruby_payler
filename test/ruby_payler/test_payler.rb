@@ -75,8 +75,21 @@ class RubyPaylerTest < Minitest::Test
       assert_equal 177, status.amount
     end
 
-    def test_retrieve
+    def test_start_session_pay_retreive_get_status_flow
+      session_id = @payler.start_session(@order_id).session_id
+      pay_url = @payler.pay_page_url(session_id)
 
+      pay(pay_url)
+
+      result = @payler.retrieve(@order_id, 177)
+      assert_equal @order_id, result.order_id
+      assert_equal 0, result.new_amount
+
+      binding.pry
+
+      status = @payler.get_status(@order_id)
+      assert_equal 'Reversed', status.status
+      assert_equal 177, status.amount
     end
   end
 end
