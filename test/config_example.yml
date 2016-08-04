@@ -1,0 +1,11 @@
+---
+shop:
+  key_: aaaaaa-bbb-cccccc-ddddd-eeeeee
+  password: AbcdEfgh
+  host: sandbox
+card:
+  number: '1111222233334444'
+  valid_till: '12/20'
+  code: '111'
+  name: RUBY_PAYLER
+use_capybara: true
