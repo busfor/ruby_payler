@@ -4,13 +4,12 @@ require 'pry-byebug'
 
 module RubyPayler
   class Payler
-    attr_reader :host, :key, :password, :type, :connection
+    attr_reader :host, :key, :password, :connection
 
-    def initialize(host:, key:, password:, type:)
+    def initialize(host:, key:, password:)
       @host = host
       @key = key
       @password = password
-      @type = type
 
       @connection = Faraday.new(
         url: "https://#{host}.payler.com",
@@ -28,13 +27,13 @@ module RubyPayler
       end
     end
 
-    def start_session(order_id)
+    def start_session(order_id:, type:, cents:, currency:)
       connection.post('gapi/StartSession', {
         key: key,
         type: type,
         order_id: order_id,
-        currency: 'RUB',
-        amount: 177,
+        currency: currency,
+        amount: cents,
       }).body
     end
 

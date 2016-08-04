@@ -12,7 +12,6 @@ class RubyPaylerTest < Minitest::Test
       host: 'host',
       key: key,
       password: 'password',
-      type: 'TwoStep',
     )
     correct_url =
       "https://host.payler.com/gapi/Pay?key=#{key}&session_id=#{session_id}"
@@ -27,20 +26,36 @@ class RubyPaylerTest < Minitest::Test
         host: shop.host,
         key: shop.key_,
         password: shop.password,
-        type: 'TwoStep',
       )
       @order_id = "busfor_test_#{DateTime.now.strftime("%Y-%m-%d-%N")}"
+      @order_amount = 111
+      @order_currency = 'RUB'
+      @session_id = "Filled in start_session"
+    end
+
+    def start_session
+      @session_id = @payler.start_session(
+        order_id: @order_id,
+        type: 'TwoStep',
+        cents: @order_amount,
+        currency: @order_currency,
+      ).session_id
+    end
+
+    def pay
+      perform_payment(@payler.pay_page_url(@session_id))
     end
 
     def test_start_session
-      session_id = @payler.start_session(@order_id).session_id
+      session_id = start_session
 
       assert_equal String, session_id.class
     end
 
     def test_start_session_get_status_error_flow
-      session_id = @payler.start_session(@order_id).session_id
+      start_session
       status = @payler.get_status(@order_id)
+
       error = status.error
 
       assert error
@@ -49,10 +64,8 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_get_status_authorized_flow
-      session_id = @payler.start_session(@order_id).session_id
-      pay_url = @payler.pay_page_url(session_id)
-
-      pay(pay_url)
+      start_session
+      pay
 
       status = @payler.get_status(@order_id)
 
@@ -60,36 +73,30 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_charge_get_status_flow
-      session_id = @payler.start_session(@order_id).session_id
-      pay_url = @payler.pay_page_url(session_id)
+      start_session
+      pay
 
-      pay(pay_url)
-
-      result = @payler.charge(@order_id, 177)
-      assert_equal 177, result.amount
+      result = @payler.charge(@order_id, @order_amount)
+      assert_equal @order_amount, result.amount
       assert_equal @order_id, result.order_id
 
       status = @payler.get_status(@order_id)
       assert_equal 'Charged', status.status
       assert_equal @order_id, status.order_id
-      assert_equal 177, status.amount
+      assert_equal @order_amount, status.amount
     end
 
     def test_start_session_pay_retreive_get_status_flow
-      session_id = @payler.start_session(@order_id).session_id
-      pay_url = @payler.pay_page_url(session_id)
+      start_session
+      pay
 
-      pay(pay_url)
-
-      result = @payler.retrieve(@order_id, 177)
+      result = @payler.retrieve(@order_id, @order_amount)
       assert_equal @order_id, result.order_id
       assert_equal 0, result.new_amount
 
-      binding.pry
-
       status = @payler.get_status(@order_id)
       assert_equal 'Reversed', status.status
-      assert_equal 177, status.amount
+      assert_equal @order_amount, status.amount
     end
   end
 end

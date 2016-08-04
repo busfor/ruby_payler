@@ -35,7 +35,7 @@ class CapybaraTestCase < Minitest::Test
     gets
   end
 
-  def pay(pay_url)
+  def perform_payment(pay_url)
     if CONFIG.use_capybara == true
       pay_by_capybara(pay_url)
     else
