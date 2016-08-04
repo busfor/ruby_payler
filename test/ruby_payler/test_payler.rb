@@ -32,6 +32,7 @@ class RubyPaylerTest < Minitest::Test
       @order_currency = 'RUB'
       @lang = 'ru'
       @session_id = "Filled in start_session"
+      @status = "Filled in get_status"
     end
 
     def start_session(type)
@@ -48,6 +49,10 @@ class RubyPaylerTest < Minitest::Test
       perform_payment(@payler.pay_page_url(@session_id))
     end
 
+    def get_status
+      @status = @payler.get_status(@order_id)
+    end
+
     def test_start_session
       session_id = start_session('TwoStep')
 
@@ -56,9 +61,9 @@ class RubyPaylerTest < Minitest::Test
 
     def test_start_session_get_status_error_flow
       start_session('TwoStep')
-      status = @payler.get_status(@order_id)
+      get_status
 
-      error = status.error
+      error = @status.error
 
       assert error
       assert_equal 603, error.code
@@ -68,10 +73,9 @@ class RubyPaylerTest < Minitest::Test
     def test_start_session_pay_get_status_authorized_flow
       start_session('TwoStep')
       pay
+      get_status
 
-      status = @payler.get_status(@order_id)
-
-      assert_equal 'Authorized', status.status
+      assert_equal 'Authorized', @status.status
     end
 
     def test_start_session_pay_charge_get_status_flow
@@ -82,11 +86,11 @@ class RubyPaylerTest < Minitest::Test
       assert_equal @order_amount, result.amount
       assert_equal @order_id, result.order_id
 
-      status = @payler.get_status(@order_id)
+      get_status
 
-      assert_equal 'Charged', status.status
-      assert_equal @order_id, status.order_id
-      assert_equal @order_amount, status.amount
+      assert_equal 'Charged', @status.status
+      assert_equal @order_id, @status.order_id
+      assert_equal @order_amount, @status.amount
     end
 
     def test_start_session_pay_retreive_get_status_flow
@@ -97,10 +101,10 @@ class RubyPaylerTest < Minitest::Test
       assert_equal @order_id, result.order_id
       assert_equal 0, result.new_amount
 
-      status = @payler.get_status(@order_id)
+      get_status
 
-      assert_equal 'Reversed', status.status
-      assert_equal @order_amount, status.amount
+      assert_equal 'Reversed', @status.status
+      assert_equal @order_amount, @status.amount
     end
 
     def test_refund_in_two_step_flow
@@ -112,20 +116,20 @@ class RubyPaylerTest < Minitest::Test
 
       assert_equal 0, result.amount
 
-      status = @payler.get_status(@order_id)
+      get_status
 
-      assert_equal 'Refunded', status.status
-      assert_equal @order_amount, status.amount
+      assert_equal 'Refunded', @status.status
+      assert_equal @order_amount, @status.amount
     end
 
     def test_pay_in_one_step_get_status_flow
       start_session('OneStep')
       pay
 
-      status = @payler.get_status(@order_id)
+      get_status
 
-      assert_equal 'Charged', status.status
-      assert_equal @order_amount, status.amount
+      assert_equal 'Charged', @status.status
+      assert_equal @order_amount, @status.amount
     end
 
     def test_refund_in_one_step_flow
@@ -136,10 +140,10 @@ class RubyPaylerTest < Minitest::Test
 
       assert_equal 0, result.amount
 
-      status = @payler.get_status(@order_id)
+      get_status
 
-      assert_equal 'Refunded', status.status
-      assert_equal @order_amount, status.amount
+      assert_equal 'Refunded', @status.status
+      assert_equal @order_amount, @status.amount
     end
   end
 end
