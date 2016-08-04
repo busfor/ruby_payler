@@ -83,6 +83,7 @@ class RubyPaylerTest < Minitest::Test
       assert_equal @order_id, result.order_id
 
       status = @payler.get_status(@order_id)
+
       assert_equal 'Charged', status.status
       assert_equal @order_id, status.order_id
       assert_equal @order_amount, status.amount
@@ -97,7 +98,18 @@ class RubyPaylerTest < Minitest::Test
       assert_equal 0, result.new_amount
 
       status = @payler.get_status(@order_id)
+
       assert_equal 'Reversed', status.status
+      assert_equal @order_amount, status.amount
+    end
+
+    def test_pay_in_one_step_get_status_flow
+      start_session('OneStep')
+      pay
+
+      status = @payler.get_status(@order_id)
+
+      assert_equal 'Charged', status.status
       assert_equal @order_amount, status.amount
     end
   end
