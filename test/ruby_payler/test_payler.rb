@@ -33,10 +33,10 @@ class RubyPaylerTest < Minitest::Test
       @session_id = "Filled in start_session"
     end
 
-    def start_session
+    def start_session(type)
       @session_id = @payler.start_session(
         order_id: @order_id,
-        type: 'TwoStep',
+        type: type,
         cents: @order_amount,
         currency: @order_currency,
       ).session_id
@@ -47,13 +47,13 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session
-      session_id = start_session
+      session_id = start_session('TwoStep')
 
       assert_equal String, session_id.class
     end
 
     def test_start_session_get_status_error_flow
-      start_session
+      start_session('TwoStep')
       status = @payler.get_status(@order_id)
 
       error = status.error
@@ -64,7 +64,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_get_status_authorized_flow
-      start_session
+      start_session('TwoStep')
       pay
 
       status = @payler.get_status(@order_id)
@@ -73,7 +73,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_charge_get_status_flow
-      start_session
+      start_session('TwoStep')
       pay
 
       result = @payler.charge(@order_id, @order_amount)
@@ -87,7 +87,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_retreive_get_status_flow
-      start_session
+      start_session('TwoStep')
       pay
 
       result = @payler.retrieve(@order_id, @order_amount)
