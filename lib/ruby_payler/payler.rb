@@ -66,5 +66,14 @@ module RubyPayler
         amount: amount,
       }).body
     end
+
+    def refund(order_id, amount)
+      connection.post('gapi/Refund', {
+        key: key,
+        password: password,
+        order_id: order_id,
+        amount: amount,
+      }).body
+    end
   end
 end
