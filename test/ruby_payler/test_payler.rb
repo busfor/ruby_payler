@@ -59,20 +59,6 @@ class RubyPaylerTest < Minitest::Test
       assert_equal String, session_id.class
     end
 
-    def test_start_session_get_status_error_flow
-      start_session('TwoStep')
-
-      begin
-        get_status
-      rescue ::RubyPayler::Error => e
-        error = e
-      end
-
-      assert error
-      assert_equal 603, error.code
-      assert_equal "Пользователь не предпринимал попыток оплаты.", error.message
-    end
-
     def test_start_session_pay_get_status_authorized_flow
       start_session('TwoStep')
       pay
@@ -147,6 +133,35 @@ class RubyPaylerTest < Minitest::Test
 
       assert_equal 'Refunded', @status.status
       assert_equal @order_amount, @status.amount
+    end
+
+    def test_start_session_get_status_error_flow
+      start_session('TwoStep')
+
+      begin
+        get_status
+      rescue ::RubyPayler::Error => e
+        error = e
+      end
+
+      assert error
+      assert_equal 603, error.code
+      assert_equal "Пользователь не предпринимал попыток оплаты.", error.message
+    end
+
+    def test_try_charge_more_than_authorized_error_flow
+      start_session('TwoStep')
+      pay
+
+      begin
+        @payler.charge(@order_id, @order_amount + 1)
+      rescue ::RubyPayler::Error => e
+        error = e
+      end
+
+      assert error
+      assert_equal 1, error.code
+      assert_equal 'Неверно указана сумма транзакции.', error.message
     end
   end
 end
