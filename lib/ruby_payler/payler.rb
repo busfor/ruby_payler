@@ -27,15 +27,21 @@ module RubyPayler
       end
     end
 
+    def call_payler_api(endpoint, params)
+      result = connection.post(endpoint, params).body
+      raise RubyPayler::Error.new(result.error) if result.error
+      result
+    end
+
     def start_session(order_id:, type:, cents:, currency:, lang:)
-      connection.post('gapi/StartSession', {
+      call_payler_api('gapi/StartSession', {
         key: key,
         type: type,
         order_id: order_id,
         currency: currency,
         amount: cents,
         lang: lang,
-      }).body
+      })
     end
 
     def pay_page_url(session_id)
@@ -43,37 +49,37 @@ module RubyPayler
     end
 
     def get_status(order_id)
-      connection.post('gapi/GetStatus', {
+      call_payler_api('gapi/GetStatus', {
         key: key,
         order_id: order_id,
-      }).body
+      })
     end
 
     def charge(order_id, amount)
-      connection.post('gapi/Charge', {
+      call_payler_api('gapi/Charge', {
         key: key,
         password: password,
         order_id: order_id,
         amount: amount,
-      }).body
+      })
     end
 
     def retrieve(order_id, amount)
-      connection.post('gapi/Retrieve', {
+      call_payler_api('gapi/Retrieve', {
         key: key,
         password: password,
         order_id: order_id,
         amount: amount,
-      }).body
+      })
     end
 
     def refund(order_id, amount)
-      connection.post('gapi/Refund', {
+      call_payler_api('gapi/Refund', {
         key: key,
         password: password,
         order_id: order_id,
         amount: amount,
-      }).body
+      })
     end
   end
 end

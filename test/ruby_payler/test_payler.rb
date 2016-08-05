@@ -61,9 +61,12 @@ class RubyPaylerTest < Minitest::Test
 
     def test_start_session_get_status_error_flow
       start_session('TwoStep')
-      get_status
 
-      error = @status.error
+      begin
+        get_status
+      rescue ::RubyPayler::Error => e
+        error = e
+      end
 
       assert error
       assert_equal 603, error.code
