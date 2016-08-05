@@ -140,8 +140,7 @@ class RubyPaylerTest < Minitest::Test
 
       begin
         get_status
-      rescue ::RubyPayler::Error => e
-        error = e
+      rescue ::RubyPayler::Error => error
       end
 
       assert error
@@ -155,8 +154,7 @@ class RubyPaylerTest < Minitest::Test
 
       begin
         @payler.charge(@order_id, @order_amount + 1)
-      rescue ::RubyPayler::Error => e
-        error = e
+      rescue ::RubyPayler::Error => error
       end
 
       assert error
