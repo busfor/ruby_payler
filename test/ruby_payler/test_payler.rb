@@ -54,13 +54,13 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session
-      session_id = start_session('TwoStep')
+      session_id = start_session(RubyPayler::SESSION_TYPES[:two_step])
 
       assert_equal String, session_id.class
     end
 
     def test_start_session_pay_get_status_authorized_flow
-      start_session('TwoStep')
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
       pay
       get_status
 
@@ -68,7 +68,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_charge_get_status_flow
-      start_session('TwoStep')
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
       pay
 
       result = @payler.charge(@order_id, @order_amount)
@@ -83,7 +83,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_retreive_get_status_flow
-      start_session('TwoStep')
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
       pay
 
       result = @payler.retrieve(@order_id, @order_amount)
@@ -97,7 +97,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_refund_in_two_step_flow
-      start_session('TwoStep')
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
       pay
       @payler.charge(@order_id, @order_amount)
 
@@ -112,7 +112,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_pay_in_one_step_get_status_flow
-      start_session('OneStep')
+      start_session(RubyPayler::SESSION_TYPES[:one_step])
       pay
 
       get_status
@@ -122,7 +122,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_refund_in_one_step_flow
-      start_session('OneStep')
+      start_session(RubyPayler::SESSION_TYPES[:one_step])
       pay
 
       result = @payler.refund(@order_id, @order_amount)
@@ -136,7 +136,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_get_status_error_flow
-      start_session('TwoStep')
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
 
       begin
         get_status
@@ -150,7 +150,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_try_charge_more_than_authorized_error_flow
-      start_session('TwoStep')
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
       pay
 
       begin
