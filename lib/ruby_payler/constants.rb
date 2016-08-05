@@ -8,4 +8,10 @@ module RubyPayler
     ru: 'ru',
     en: 'en',
   }.freeze
+
+  CURRENCIES = {
+    rub: 'RUB',
+    usd: 'USD',
+    eur: 'EUR',
+  }.freeze
 end
