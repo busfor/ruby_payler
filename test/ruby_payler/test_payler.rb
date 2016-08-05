@@ -161,5 +161,19 @@ class RubyPaylerTest < Minitest::Test
       assert_equal 1, error.code
       assert_equal 'Неверно указана сумма транзакции.', error.message
     end
+
+    def test_error_in_english_session
+      @lang = RubyPayler::LANGUAGES[:en]
+      start_session(RubyPayler::SESSION_TYPES[:two_step])
+
+      begin
+        get_status
+      rescue ::RubyPayler::Error => error
+      end
+
+      assert error
+      assert_equal 603, error.code
+      assert_equal "User has not attempted to pay.", error.message
+    end
   end
 end
