@@ -1,6 +1,5 @@
 require 'faraday'
 require 'faraday_middleware'
-require 'pry-byebug'
 
 module RubyPayler
   class Payler
