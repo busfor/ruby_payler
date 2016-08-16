@@ -59,6 +59,32 @@ class RubyPaylerTest < Minitest::Test
       assert_equal String, session_id.class
     end
 
+    def test_pay_page_contains_product_name
+      product_name = 'Тестовый продукт'
+      @session_id = @payler.start_session(
+        order_id: @order_id,
+        type: RubyPayler::SESSION_TYPES[:two_step],
+        cents: @order_amount,
+        currency: @order_currency,
+        lang: @lang,
+        product: product_name,
+      ).session_id
+      page.visit(@payler.pay_page_url(@session_id))
+      assert page.has_content?(product_name)
+    end
+
+    def test_pay_page_contains_product_id_if_no_name_passed
+      @session_id = @payler.start_session(
+        order_id: @order_id,
+        type: RubyPayler::SESSION_TYPES[:two_step],
+        cents: @order_amount,
+        currency: @order_currency,
+        lang: @lang,
+      ).session_id
+      page.visit(@payler.pay_page_url(@session_id))
+      assert page.has_content?(@order_id)
+    end
+
     def test_start_session_pay_get_status_authorized_flow
       start_session(RubyPayler::SESSION_TYPES[:two_step])
       pay

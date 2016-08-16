@@ -26,13 +26,18 @@ module RubyPayler
       end
     end
 
+    def remove_nils_from_params!(params)
+      params.delete_if { |k, v| v.nil? }
+    end
+
     def call_payler_api(endpoint, params)
+      remove_nils_from_params!(params)
       result = connection.post(endpoint, params).body
       raise RubyPayler::Error.new(result.error) if result.error
       result
     end
 
-    def start_session(order_id:, type:, cents:, currency:, lang:)
+    def start_session(order_id:, type:, cents:, currency:, lang:, product: nil)
       call_payler_api('gapi/StartSession', {
         key: key,
         type: type,
@@ -40,6 +45,7 @@ module RubyPayler
         currency: currency,
         amount: cents,
         lang: lang,
+        product: product,
       })
     end
 
