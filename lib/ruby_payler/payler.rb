@@ -37,7 +37,16 @@ module RubyPayler
       result
     end
 
-    def start_session(order_id:, type:, cents:, currency:, lang:, product: nil)
+    def start_session(
+      order_id:,
+      type:,
+      cents:,
+      currency:,
+      lang:,
+      product: nil,
+      userdata: nil
+    )
+      params =
       call_payler_api('gapi/StartSession', {
         key: key,
         type: type,
@@ -46,6 +55,7 @@ module RubyPayler
         amount: cents,
         lang: lang,
         product: product,
+        userdata: userdata,
       })
     end
 
@@ -55,6 +65,13 @@ module RubyPayler
 
     def get_status(order_id)
       call_payler_api('gapi/GetStatus', {
+        key: key,
+        order_id: order_id,
+      })
+    end
+
+    def get_advanced_status(order_id)
+      call_payler_api('gapi/GetAdvancedStatus', {
         key: key,
         order_id: order_id,
       })

@@ -59,6 +59,23 @@ class RubyPaylerTest < Minitest::Test
       assert_equal String, session_id.class
     end
 
+    def test_pass_user_data_through_start_session_and_advanced_status
+      user_data = 'user_data'
+      @session_id = @payler.start_session(
+        order_id: @order_id,
+        type: RubyPayler::SESSION_TYPES[:two_step],
+        cents: @order_amount,
+        currency: @order_currency,
+        lang: @lang,
+        userdata: user_data,
+      ).session_id
+      pay # Returns error if user didn't try to pay
+
+      advanced_status = @payler.get_advanced_status(@order_id)
+
+      assert_equal user_data, advanced_status.userdata
+    end
+
     def test_pay_page_contains_product_name
       product_name = 'Тестовый продукт'
       @session_id = @payler.start_session(
