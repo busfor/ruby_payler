@@ -28,15 +28,15 @@ Or install it yourself as:
 
 ## Usage
 ```ruby
+# Require Constants to use them
+require RubyPayler::Constants
+
 # Create and initialize RubyPayler object with payler credentials
 payler = RubyPayler::Payler.new(
   host: 'sandbox',
   key: 'aaaa-bbbb-ccc-ddd-eeeee',
   password: 'AaaBBbccC'
 )
-
-# Require Constants to use them
-require RubyPayler::Constants
 
 # Start session to pay given order
 session_id = payler.start_session(
