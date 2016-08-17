@@ -1,6 +1,8 @@
 # RubyPayler
 Ruby wrapper for payler.com API
 
+_Not all methods, parameters are implemented. There's an issue about that and I'm going to resolve it a bit later._
+
 Documentation for API is here: http://payler.com/docs/acquiring.html
 
 ## Installation
@@ -21,6 +23,9 @@ Or install it yourself as:
 
 ## Usage
 ```ruby
+# Some parameters to methods are not required.
+# Just omit such params in method call, if you don't need them.
+
 # Create and initialize RubyPayler object with payler credentials
 payler = RubyPayler::Payler.new(
   host: 'sandbox',
@@ -28,13 +33,18 @@ payler = RubyPayler::Payler.new(
   password: 'AaaBBbccC'
 )
 
+# Require Constants to use them
+require RubyPayler::Constants
+
 # Start session to pay given order
 session_id = payler.start_session(
   order_id: 'order-12345',
-  type: RubyPayler::SESSION_TYPES[:two_step], # one_step, two_step
+  type: SESSION_TYPES[:two_step], # one_step, two_step
   cents: 111,
-  currency: RubyPayler::CURRENCIES[:rub], # rub, usd, eur
-  lang: RubyPayler::LANGUAGES[:ru], # ru, en
+  currency: CURRENCIES[:rub], # rub, usd, eur
+  lang: LANGUAGES[:ru], # ru, en
+  product: 'Product name', # not required
+  userdata: 'any data string to get later via get_advanced_status', # not required
 ).session_id
 
 # Get url of payment page and redirect user to it
@@ -44,6 +54,9 @@ redirect_to payler.pay_page_url(session_id)
 status = payler.get_status(order_id)
 # status.status = 'Authorized' for successfull TwoStep payment
 # status.status = 'Charged' for successfull OneStep payment
+
+# More data, including passed userdata
+status = payler.get_advanced_status(order_id)
 
 # Charge authorized money for TwoStep payment
 payler.charge(order_id, order_amount) # status => 'Charged'
@@ -58,14 +71,21 @@ payler.refund(order_id, order_amount) # Status => 'Refunded'
 See tests for more usage examples
 
 ## Errors
-In case of any error RubyPayler `raises` RubyPayler::Error having code and message
+In case of any error RubyPayler `raises` RubyPayler::Error.
+There are two child types of Errors:
+- FailedRequest - for failed network request (FaradayError)
+- ResponseWithError - for response with status != 200 and error in body
+
+ResponseWithError objects has methods to access _error_, _code_, _message_, of error returned in resonse.
 
 ## Tests
-Tests make real calls to Payler.com web API.
+*Tests make real calls to Payler.com web API.*
+
+Cool, because it really test workflows of interaction with payler equiring via ruby_payler gem. If payler API changes, tests will brake. So, if all tests are passing, tandem of payler and gem is working fine.
 
 Payment step in tests is automated with Capybara and PhantomJS.
 
-You can switch to make Payment step by hand via config file
+You can switch to make Payment step by hand via config file (use_capybara: false).
 
 ## Config
 Make file config.yml by copying config_example.yml
@@ -77,9 +97,7 @@ Fill test card number, vaild_till, code, name for automated payment by capybara
 Change use_capybara to false to make payment by hand
 
 ## Development
-To run automated tests with capybara install PhantomJS
-
-brew install phantomjs on MacOS
+To run automated tests with capybara install PhantomJS (_brew install phantomjs on MacOS_)
 
 To experiment with that code, run `bin/console` for an interactive prompt.
 
