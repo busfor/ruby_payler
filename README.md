@@ -5,6 +5,8 @@ _Not all methods, parameters are implemented. There's an issue about that and I'
 
 Documentation for API is here: http://payler.com/docs/acquiring.html
 
+Documentation for this gem: http://www.rubydoc.info/gems/ruby_payler/
+
 ## Installation
 
 Add this line to your application's Gemfile:
