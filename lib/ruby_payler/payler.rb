@@ -32,8 +32,17 @@ module RubyPayler
 
     def call_payler_api(endpoint, params)
       remove_nils_from_params!(params)
-      result = connection.post(endpoint, params).body
-      raise RubyPayler::Error.new(result.error) if result.error
+
+      begin
+        response = connection.post(endpoint, params)
+      rescue Faraday::Error => e
+        raise RequestError, e.message
+      end
+
+      result = response.body
+      if result.error
+        raise ResponseWithError, result.error
+      end
       result
     end
 

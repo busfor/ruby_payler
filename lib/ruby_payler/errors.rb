@@ -1,5 +1,13 @@
 module RubyPayler
   class Error < RuntimeError
+  end
+
+  # Faraday errors
+  class FailedRequest < Error
+  end
+
+  # Response.body contains error
+  class ResponseWithError < Error
     attr_reader :error
 
     def initialize(error)
