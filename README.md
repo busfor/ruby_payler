@@ -21,11 +21,13 @@ Or install it yourself as:
 
     $ gem install ruby_payler
 
+## General considerations on usage
+- All methods return mashified response.body, see [Hashie::Mash](https://github.com/intridea/hashie#mash)
+- Some parameters to methods are not required. Omit if you don't need them.
+
+
 ## Usage
 ```ruby
-# Some parameters to methods are not required.
-# Just omit such params in method call, if you don't need them.
-
 # Create and initialize RubyPayler object with payler credentials
 payler = RubyPayler::Payler.new(
   host: 'sandbox',
@@ -52,20 +54,20 @@ redirect_to payler.pay_page_url(session_id)
 
 # User paid for order and Payler redirects it back to shop
 status = payler.get_status(order_id)
-# status.status = 'Authorized' for successfull TwoStep payment
-# status.status = 'Charged' for successfull OneStep payment
+# status.status = RESPONSE_STATUSES[:authorized] for successfull TwoStep payment
+# status.status = RESPONSE_STATUSES[:charged] for successfull OneStep payment
 
 # More data, including passed userdata
 status = payler.get_advanced_status(order_id)
 
 # Charge authorized money for TwoStep payment
-payler.charge(order_id, order_amount) # status => 'Charged'
+payler.charge(order_id, order_amount) # status => RESPONSE_STATUSES[:charged]
 
 # Retrieve authorized money for TwoStep payment
-payler.retrieve(order_id, order_amount) # Status => 'Reversed'
+payler.retrieve(order_id, order_amount) # status => RESPONSE_STATUSES[reversed]
 
 # Refund already charged money
-payler.refund(order_id, order_amount) # Status => 'Refunded'
+payler.refund(order_id, order_amount) # status => RESPONSE_STATUSES[refunded]
 ```
 
 See tests for more usage examples
@@ -83,7 +85,7 @@ ResponseWithError objects has methods to access _error_, _code_, _message_, of e
 
 Cool, because it really test workflows of interaction with payler equiring via ruby_payler gem. If payler API changes, tests will brake. So, if all tests are passing, tandem of payler and gem is working fine.
 
-Payment step in tests is automated with Capybara and PhantomJS.
+Payment step in tests is automated with Capybara and PhantomJS (cool as well).
 
 You can switch to make Payment step by hand via config file (use_capybara: false).
 
