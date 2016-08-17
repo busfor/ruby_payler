@@ -14,4 +14,14 @@ module RubyPayler
     usd: 'USD',
     eur: 'EUR',
   }.freeze
+
+  RESPONSE_STATUSES = {
+    created: 'Created',
+    pre_authorized_3ds: 'PreAuthorized3DS',
+    authorized: 'Authorized',
+    charged: 'Charged',
+    refunded: 'Refunded',
+    reversed: 'Reversed',
+    rejected: 'Rejected',
+  }.freeze
 end
