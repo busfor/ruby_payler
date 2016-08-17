@@ -20,6 +20,7 @@ class RubyPaylerTest < Minitest::Test
   end
 
   class TestPaylerFlows < CapybaraTestCase
+    include RubyPayler::Constants
     def setup
       shop = CONFIG.shop
       @payler = RubyPayler::Payler.new(
@@ -29,8 +30,8 @@ class RubyPaylerTest < Minitest::Test
       )
       @order_id = "busfor_test_#{DateTime.now.strftime("%Y-%m-%d-%N")}"
       @order_amount = 111
-      @order_currency = RubyPayler::CURRENCIES[:rub]
-      @lang = RubyPayler::LANGUAGES[:ru]
+      @order_currency = CURRENCIES[:rub]
+      @lang = LANGUAGES[:ru]
       @session_id = "Filled in start_session"
       @status = "Filled in get_status"
     end
@@ -54,7 +55,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session
-      session_id = start_session(RubyPayler::SESSION_TYPES[:two_step])
+      session_id = start_session(SESSION_TYPES[:two_step])
 
       assert_equal String, session_id.class
     end
@@ -63,7 +64,7 @@ class RubyPaylerTest < Minitest::Test
       user_data = 'user_data'
       @session_id = @payler.start_session(
         order_id: @order_id,
-        type: RubyPayler::SESSION_TYPES[:two_step],
+        type: SESSION_TYPES[:two_step],
         cents: @order_amount,
         currency: @order_currency,
         lang: @lang,
@@ -80,7 +81,7 @@ class RubyPaylerTest < Minitest::Test
       product_name = 'Тестовый продукт'
       @session_id = @payler.start_session(
         order_id: @order_id,
-        type: RubyPayler::SESSION_TYPES[:two_step],
+        type: SESSION_TYPES[:two_step],
         cents: @order_amount,
         currency: @order_currency,
         lang: @lang,
@@ -93,7 +94,7 @@ class RubyPaylerTest < Minitest::Test
     def test_pay_page_contains_product_id_if_no_name_passed
       @session_id = @payler.start_session(
         order_id: @order_id,
-        type: RubyPayler::SESSION_TYPES[:two_step],
+        type: SESSION_TYPES[:two_step],
         cents: @order_amount,
         currency: @order_currency,
         lang: @lang,
@@ -103,7 +104,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_get_status_authorized_flow
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      start_session(SESSION_TYPES[:two_step])
       pay
       get_status
 
@@ -111,7 +112,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_charge_get_status_flow
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      start_session(SESSION_TYPES[:two_step])
       pay
 
       result = @payler.charge(@order_id, @order_amount)
@@ -126,7 +127,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_pay_retreive_get_status_flow
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      start_session(SESSION_TYPES[:two_step])
       pay
 
       result = @payler.retrieve(@order_id, @order_amount)
@@ -140,7 +141,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_refund_in_two_step_flow
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      start_session(SESSION_TYPES[:two_step])
       pay
       @payler.charge(@order_id, @order_amount)
 
@@ -155,7 +156,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_pay_in_one_step_get_status_flow
-      start_session(RubyPayler::SESSION_TYPES[:one_step])
+      start_session(SESSION_TYPES[:one_step])
       pay
 
       get_status
@@ -165,7 +166,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_refund_in_one_step_flow
-      start_session(RubyPayler::SESSION_TYPES[:one_step])
+      start_session(SESSION_TYPES[:one_step])
       pay
 
       result = @payler.refund(@order_id, @order_amount)
@@ -179,7 +180,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_start_session_get_status_error_flow
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      start_session(SESSION_TYPES[:two_step])
 
       begin
         get_status
@@ -192,7 +193,7 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_try_charge_more_than_authorized_error_flow
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      start_session(SESSION_TYPES[:two_step])
       pay
 
       begin
@@ -206,8 +207,8 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_error_in_english_session
-      @lang = RubyPayler::LANGUAGES[:en]
-      start_session(RubyPayler::SESSION_TYPES[:two_step])
+      @lang = LANGUAGES[:en]
+      start_session(SESSION_TYPES[:two_step])
 
       begin
         get_status
