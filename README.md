@@ -78,7 +78,7 @@ There are two child types of Errors:
 - FailedRequest - for failed network request (FaradayError)
 - ResponseWithError - for response with status != 200 and error in body
 
-ResponseWithError objects has methods to access _error_, _code_, _message_, of error returned in resonse.
+ResponseWithError objects has methods to access _error_, _code_, _message_ of error returned in resonse.
 
 ## Tests
 *Tests make real calls to Payler.com web API.*
