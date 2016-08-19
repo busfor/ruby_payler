@@ -3,9 +3,9 @@ require 'faraday_middleware'
 
 module RubyPayler
   class Payler
-    attr_reader :host, :key, :password, :connection
+    attr_reader :host, :key, :password
 
-    def initialize(host:, key:, password:)
+    def initialize(host:, key:, password:, debug: false)
       @host = host
       @key = key
       @password = password
@@ -18,32 +18,12 @@ module RubyPayler
 
         f.params
 
-        f.response :mashify  # 3. mashify parsed JSON
-        f.response :json     # 2. parse JSON
-        #f.response :logger  # 1. log requests to STDOUT
+        f.response :mashify          # 3. mashify parsed JSON
+        f.response :json             # 2. parse JSON
+        f.response :logger if debug  # 1. log requests to STDOUT
 
         f.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
-    end
-
-    def remove_nils_from_params!(params)
-      params.delete_if { |k, v| v.nil? }
-    end
-
-    def call_payler_api(endpoint, params)
-      remove_nils_from_params!(params)
-
-      begin
-        response = connection.post(endpoint, params)
-      rescue Faraday::Error => e
-        raise RequestError, e.message
-      end
-
-      result = response.body
-      if result.error
-        raise ResponseWithError, result.error
-      end
-      result
     end
 
     def start_session(
@@ -112,5 +92,31 @@ module RubyPayler
         amount: amount,
       })
     end
-  end
-end
+
+    private
+
+    def connection
+      @connection
+    end
+
+    def remove_nils_from_params!(params)
+      params.delete_if { |k, v| v.nil? }
+    end
+
+    def call_payler_api(endpoint, params)
+      remove_nils_from_params!(params)
+
+      begin
+        response = connection.post(endpoint, params)
+      rescue Faraday::Error => e
+        raise RequestError, e.message
+      end
+
+      result = response.body
+      if result.error
+        raise ResponseWithError, result.error
+      end
+      result
+    end
+  end # class Payler
+end # module RubyPayler
