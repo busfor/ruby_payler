@@ -1,11 +1,11 @@
 module RubyPayler
   class Error < RuntimeError
     def code
-      raise 'RubyPayler::Error should implement #code method'
+      raise NotImplementedError
     end
 
     def message
-      raise 'RubyPayler::Error should implement #message method'
+      raise NotImplementedError
     end
   end
 
