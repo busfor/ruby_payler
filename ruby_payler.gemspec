@@ -32,4 +32,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "terminal-notifier-guard", "~> 1.6.1"
   spec.add_development_dependency "capybara", "~> 2.6", ">= 2.6.2"
   spec.add_development_dependency "poltergeist", "~> 1.10"
+  spec.add_development_dependency "mocha", ">= 1.2.1"
 end

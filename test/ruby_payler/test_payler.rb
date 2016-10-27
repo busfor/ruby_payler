@@ -219,5 +219,13 @@ class RubyPaylerTest < Minitest::Test
       assert_equal 603, error.code
       assert_equal "User has not attempted to pay.", error.message
     end
+
+    def test_faraday_request_error
+      Faraday::Connection.any_instance.stubs(:post).raises(Faraday::Error)
+
+      assert_raises(RubyPayler::FailedRequest) do
+        start_session(SESSION_TYPES[:one_step])
+      end
+    end
   end
 end

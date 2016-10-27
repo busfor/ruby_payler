@@ -109,7 +109,7 @@ module RubyPayler
       begin
         response = connection.post(endpoint, params)
       rescue Faraday::Error => e
-        raise RequestError, e.message
+        raise FailedRequest, e.message
       end
 
       result = response.body

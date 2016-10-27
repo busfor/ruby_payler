@@ -11,6 +11,8 @@ require 'capybara'
 require 'capybara/dsl'
 require 'capybara/poltergeist'
 
+require 'mocha/mini_test'
+
 CONFIG = ::Hashie::Mash.new YAML::load(File.read('test/config.yml')).freeze
 
 class CapybaraTestCase < Minitest::Test
