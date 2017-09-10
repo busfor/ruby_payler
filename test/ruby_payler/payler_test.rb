@@ -28,12 +28,12 @@ class RubyPaylerTest < Minitest::Test
         key: shop.key_,
         password: shop.password,
       )
-      @order_id = "busfor_test_#{DateTime.now.strftime("%Y-%m-%d-%N")}"
+      @order_id = "busfor_test_#{DateTime.now.strftime('%Y-%m-%d-%N')}"
       @order_amount = 111
       @order_currency = CURRENCIES[:rub]
       @lang = LANGUAGES[:ru]
-      @session_id = "Filled in start_session"
-      @status = "Filled in get_status"
+      @session_id = 'Filled in start_session'
+      @status = 'Filled in get_status'
     end
 
     def start_session(type)
@@ -271,7 +271,7 @@ class RubyPaylerTest < Minitest::Test
 
       assert error
       assert_equal 603, error.code
-      assert_equal "Пользователь не предпринимал попыток оплаты.", error.message
+      assert_equal 'Пользователь не предпринимал попыток оплаты.', error.message
     end
 
     def test_try_charge_more_than_authorized_error_flow
@@ -299,7 +299,7 @@ class RubyPaylerTest < Minitest::Test
 
       assert error
       assert_equal 603, error.code
-      assert_equal "User has not attempted to pay.", error.message
+      assert_equal 'User has not attempted to pay.', error.message
     end
 
     def test_faraday_request_error

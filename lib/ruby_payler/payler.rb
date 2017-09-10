@@ -3,27 +3,13 @@ require 'faraday_middleware'
 
 module RubyPayler
   class Payler
-    attr_reader :host, :key, :password, :connection
+    attr_reader :host, :key, :password, :debug
 
     def initialize(host:, key:, password:, debug: false)
       @host = host
       @key = key
       @password = password
-
-      @connection = Faraday.new(
-        url: "https://#{host}.payler.com",
-        params: { key: @key },
-      ) do |f|
-        f.request :url_encoded # form-encode POST params
-
-        f.params
-
-        f.response :mashify          # 3. mashify parsed JSON
-        f.response :json             # 2. parse JSON
-        f.response :logger if debug  # 1. log requests to STDOUT
-
-        f.adapter  Faraday.default_adapter # make requests with Net::HTTP
-      end
+      @debug = debug
     end
 
     def start_session(
@@ -121,6 +107,23 @@ module RubyPayler
     end
 
     private
+
+    def connection
+      @connection ||= Faraday.new(
+        url: "https://#{host}.payler.com",
+        params: { key: @key },
+      ) do |f|
+        f.request :url_encoded # form-encode POST params
+
+        f.params
+
+        f.response :mashify          # 3. mashify parsed JSON
+        f.response :json             # 2. parse JSON
+        f.response :logger if debug  # 1. log requests to STDOUT
+
+        f.adapter Faraday.default_adapter # make requests with Net::HTTP
+      end
+    end
 
     def call_payler_api(endpoint, params)
       remove_nils_from_params!(params)
