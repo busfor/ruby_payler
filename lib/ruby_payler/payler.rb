@@ -60,7 +60,7 @@ module RubyPayler
       })
     end
 
-    def find_session(order_id:)
+    def find_session(order_id)
       call_payler_api('gapi/FindSession', {
         key: key,
         order_id: order_id,
@@ -109,6 +109,30 @@ module RubyPayler
         password: password,
         order_id: order_id,
         amount: amount,
+      })
+    end
+
+    def get_template(recurrent_template_id)
+      call_payler_api('gapi/GetTemplate', {
+        key: key,
+        recurrent_template_id: recurrent_template_id,
+      })
+    end
+
+    def activate_template(recurrent_template_id, active)
+      call_payler_api('gapi/ActivateTemplate', {
+        key: key,
+        recurrent_template_id: recurrent_template_id,
+        active: active,
+      })
+    end
+
+    def repeat_pay(order_id:, amount:, recurrent_template_id:)
+      call_payler_api('gapi/RepeatPay', {
+        key: key,
+        order_id: order_id,
+        amount: amount,
+        recurrent_template_id: recurrent_template_id,
       })
     end
 
