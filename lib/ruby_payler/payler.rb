@@ -14,7 +14,7 @@ module RubyPayler
         url: "https://#{host}.payler.com",
         params: { key: @key },
       ) do |f|
-        f.request  :url_encoded # form-encode POST params
+        f.request :url_encoded # form-encode POST params
 
         f.params
 
@@ -26,25 +26,44 @@ module RubyPayler
       end
     end
 
+    # pay_page_param_* можно передать любые параметры, чтобы потом отобразить
     def start_session(
-      order_id:,
       type:,
+      order_id:,
       cents:,
-      currency:,
-      lang:,
+      currency: nil,
       product: nil,
-      userdata: nil
+      total: nil,
+      template: nil,
+      lang: nil,
+      userdata: nil,
+      recurrent: nil,
+      **pay_page_params
     )
-      params =
+      pay_page_params.select! do |key, _value|
+        key.to_s.start_with?('pay_page_param_')
+      end
+
       call_payler_api('gapi/StartSession', {
         key: key,
         type: type,
         order_id: order_id,
-        currency: currency,
         amount: cents,
-        lang: lang,
+        currency: currency,
         product: product,
+        total: total,
+        template: template,
+        lang: lang,
         userdata: userdata,
+        recurrent: recurrent,
+        **pay_page_params,
+      })
+    end
+
+    def find_session(order_id:)
+      call_payler_api('gapi/FindSession', {
+        key: key,
+        order_id: order_id,
       })
     end
 
@@ -99,9 +118,6 @@ module RubyPayler
       @connection
     end
 
-    def remove_nils_from_params!(params)
-      params.delete_if { |k, v| v.nil? }
-    end
 
     def call_payler_api(endpoint, params)
       remove_nils_from_params!(params)
@@ -117,6 +133,10 @@ module RubyPayler
         raise ResponseWithError, result.error
       end
       result
+    end
+
+    def remove_nils_from_params!(params)
+      params.delete_if { |k, v| v.nil? }
     end
   end # class Payler
 end # module RubyPayler
