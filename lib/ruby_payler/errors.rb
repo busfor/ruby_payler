@@ -1,4 +1,5 @@
 module RubyPayler
+  # Base error class for all RubyPayler errors
   class Error < RuntimeError
     def code
       raise NotImplementedError
