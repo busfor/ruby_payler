@@ -3,7 +3,7 @@ require 'faraday_middleware'
 
 module RubyPayler
   class Payler
-    attr_reader :host, :key, :password
+    attr_reader :host, :key, :password, :connection
 
     def initialize(host:, key:, password:, debug: false)
       @host = host
@@ -22,11 +22,10 @@ module RubyPayler
         f.response :json             # 2. parse JSON
         f.response :logger if debug  # 1. log requests to STDOUT
 
-        f.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        f.adapter  Faraday.default_adapter # make requests with Net::HTTP
       end
     end
 
-    # pay_page_param_* можно передать любые параметры, чтобы потом отобразить
     def start_session(
       type:,
       order_id:,
@@ -44,7 +43,8 @@ module RubyPayler
         key.to_s.start_with?('pay_page_param_')
       end
 
-      call_payler_api('gapi/StartSession', {
+      call_payler_api(
+        'gapi/StartSession',
         type: type,
         order_id: order_id,
         amount: cents,
@@ -56,82 +56,71 @@ module RubyPayler
         userdata: userdata,
         recurrent: recurrent,
         **pay_page_params,
-      })
+      )
     end
 
     def find_session(order_id)
-      call_payler_api('gapi/FindSession', {
-        order_id: order_id,
-      })
+      call_payler_api('gapi/FindSession', order_id: order_id)
     end
 
     def pay_page_url(session_id)
-      "#{connection.url_prefix.to_s}gapi/Pay?key=#{key}&session_id=#{session_id}"
+      "#{connection.url_prefix}gapi/Pay?key=#{key}&session_id=#{session_id}"
     end
 
     def get_status(order_id)
-      call_payler_api('gapi/GetStatus', {
-        order_id: order_id,
-      })
+      call_payler_api('gapi/GetStatus', order_id: order_id)
     end
 
     def get_advanced_status(order_id)
-      call_payler_api('gapi/GetAdvancedStatus', {
-        order_id: order_id,
-      })
+      call_payler_api('gapi/GetAdvancedStatus', order_id: order_id)
     end
 
     def charge(order_id, amount)
-      call_payler_api('gapi/Charge', {
+      call_payler_api('gapi/Charge',
         password: password,
         order_id: order_id,
         amount: amount,
-      })
+      )
     end
 
     def retrieve(order_id, amount)
-      call_payler_api('gapi/Retrieve', {
+      call_payler_api('gapi/Retrieve',
         password: password,
         order_id: order_id,
         amount: amount,
-      })
+      )
     end
 
     def refund(order_id, amount)
-      call_payler_api('gapi/Refund', {
+      call_payler_api('gapi/Refund',
         password: password,
         order_id: order_id,
         amount: amount,
-      })
+      )
     end
 
     def get_template(recurrent_template_id)
-      call_payler_api('gapi/GetTemplate', {
+      call_payler_api('gapi/GetTemplate',
         recurrent_template_id: recurrent_template_id,
-      })
+      )
     end
 
     def activate_template(recurrent_template_id, active)
-      call_payler_api('gapi/ActivateTemplate', {
+      call_payler_api('gapi/ActivateTemplate',
         recurrent_template_id: recurrent_template_id,
         active: active,
-      })
+      )
     end
 
     def repeat_pay(order_id:, amount:, recurrent_template_id:)
-      call_payler_api('gapi/RepeatPay', {
+      call_payler_api('gapi/RepeatPay',
         order_id: order_id,
         amount: amount,
         recurrent_template_id: recurrent_template_id,
-      })
+      )
     end
 
     private
-
-    def connection
-      @connection
-    end
-
 
     def call_payler_api(endpoint, params)
       remove_nils_from_params!(params)
@@ -144,14 +133,14 @@ module RubyPayler
       end
 
       result = response.body
-      if result.error
-        raise ResponseWithError, result.error
-      end
+
+      raise ResponseWithError, result.error if result.error
+
       result
     end
 
     def remove_nils_from_params!(params)
-      params.delete_if { |k, v| v.nil? }
+      params.delete_if { |_key, value| value.nil? }
     end
   end # class Payler
 end # module RubyPayler
