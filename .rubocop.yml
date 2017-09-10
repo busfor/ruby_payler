@@ -26,3 +26,6 @@ Style/AlignParameters:
 
 Style/MultilineMethodCallBraceLayout:
   EnforcedStyle: new_line
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

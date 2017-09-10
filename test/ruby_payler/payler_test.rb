@@ -93,7 +93,7 @@ class RubyPaylerTest < Minitest::Test
 
       assert error
       assert_equal 104, error.code
-      assert_equal "Активация шаблона рекуррентных платежей требует подтверждения со стороны банка.", error.message
+      assert_equal 'Активация шаблона рекуррентных платежей требует подтверждения со стороны банка.', error.message
 
       # Try to repeat_pay
       begin
