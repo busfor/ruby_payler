@@ -60,6 +60,56 @@ class RubyPaylerTest < Minitest::Test
       assert_equal String, session_id.class
     end
 
+    def test_templates
+      @session_id = @payler.start_session(
+        type: SESSION_TYPES[:two_step],
+        order_id: @order_id,
+        cents: @order_amount,
+        currency: @order_currency,
+        lang: @lang,
+        recurrent: true,
+      ).session_id
+
+      pay
+
+      status = @payler.get_status(@order_id)
+      recurrent_template_id = status.recurrent_template_id
+
+      assert recurrent_template_id
+
+      template_info = @payler.get_template(recurrent_template_id)
+      assert_equal false, template_info.active
+      assert template_info.recurrent_template_id
+      assert DateTime.parse(template_info.created)
+      assert template_info.card_holder
+      assert template_info.card_number
+      assert template_info.expiry
+
+      # Now try to activate template
+      begin
+        @payler.activate_template(recurrent_template_id, true)
+      rescue ::RubyPayler::ResponseWithError => error
+      end
+
+      assert error
+      assert_equal 104, error.code
+      assert_equal "Активация шаблона рекуррентных платежей требует подтверждения со стороны банка.", error.message
+
+      # Try to repeat_pay
+      begin
+        @payler.repeat_pay(
+          order_id: @order_id + '-repeat',
+          amount: @order_amount,
+          recurrent_template_id: recurrent_template_id,
+        )
+      rescue ::RubyPayler::ResponseWithError => error
+      end
+
+      assert error
+      assert_equal 27, error.code
+      assert_equal 'Шаблон рекуррентных платежей неактивен.', error.message
+    end
+
     def test_pass_data_from_start_session_to_find_session
       session_id = @payler.start_session(
         type: SESSION_TYPES[:one_step],
@@ -75,7 +125,7 @@ class RubyPaylerTest < Minitest::Test
         pay_page_param_two: 'two',
       ).session_id
 
-      session_info = @payler.find_session(order_id: @order_id)
+      session_info = @payler.find_session(@order_id)
 
       assert_equal session_id, session_info.id
       assert DateTime.parse(session_info.created)
