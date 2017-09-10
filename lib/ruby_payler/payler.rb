@@ -2,6 +2,7 @@ require 'faraday'
 require 'faraday_middleware'
 
 module RubyPayler
+  # Wrapper for payler gate api
   class Payler
     attr_reader :host, :key, :password, :debug
 
