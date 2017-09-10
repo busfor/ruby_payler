@@ -16,7 +16,7 @@ module RubyPayler
     end
 
     def message
-      self.to_s
+      to_s
     end
   end
 
