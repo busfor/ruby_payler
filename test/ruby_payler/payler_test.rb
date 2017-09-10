@@ -1,24 +1,6 @@
 require 'test_helper'
 
 class RubyPaylerTest < Minitest::Test
-  def test_that_it_has_a_version_number
-    refute_nil ::RubyPayler::VERSION
-  end
-
-  def test_pay_page_url
-    key = '123'
-    session_id = '321'
-    payler = RubyPayler::Payler.new(
-      host: 'host',
-      key: key,
-      password: 'password',
-    )
-    correct_url =
-      "https://host.payler.com/gapi/Pay?key=#{key}&session_id=#{session_id}"
-
-    assert_equal correct_url, payler.pay_page_url(session_id)
-  end
-
   class TestPaylerFlows < CapybaraTestCase
     include RubyPayler::Constants
     def setup
@@ -61,12 +43,13 @@ class RubyPaylerTest < Minitest::Test
     end
 
     def test_templates
+      @lang = LANGUAGES[:en]
       @session_id = @payler.start_session(
         type: SESSION_TYPES[:two_step],
         order_id: @order_id,
         cents: @order_amount,
         currency: @order_currency,
-        lang: @lang,
+        lang: LANGUAGES[:en],
         recurrent: true,
       ).session_id
 
@@ -85,15 +68,16 @@ class RubyPaylerTest < Minitest::Test
       assert template_info.card_number
       assert template_info.expiry
 
+      expected_error_message =
+        'Активация шаблона рекуррентных платежей требует подтверждения со стороны банка.'
       # Now try to activate template
       begin
         @payler.activate_template(recurrent_template_id, true)
       rescue ::RubyPayler::ResponseWithError => error
+        assert_equal 104, error.code
+        assert_equal expected_error_message, error.message
       end
-
       assert error
-      assert_equal 104, error.code
-      assert_equal 'Активация шаблона рекуррентных платежей требует подтверждения со стороны банка.', error.message
 
       # Try to repeat_pay
       begin
@@ -103,11 +87,10 @@ class RubyPaylerTest < Minitest::Test
           recurrent_template_id: recurrent_template_id,
         )
       rescue ::RubyPayler::ResponseWithError => error
+        assert_equal 27, error.code
+        assert_equal 'Шаблон рекуррентных платежей неактивен.', error.message
       end
-
       assert error
-      assert_equal 27, error.code
-      assert_equal 'Шаблон рекуррентных платежей неактивен.', error.message
     end
 
     def test_pass_data_from_start_session_to_find_session
