@@ -45,7 +45,6 @@ module RubyPayler
       end
 
       call_payler_api('gapi/StartSession', {
-        key: key,
         type: type,
         order_id: order_id,
         amount: cents,
@@ -62,7 +61,6 @@ module RubyPayler
 
     def find_session(order_id)
       call_payler_api('gapi/FindSession', {
-        key: key,
         order_id: order_id,
       })
     end
@@ -73,21 +71,18 @@ module RubyPayler
 
     def get_status(order_id)
       call_payler_api('gapi/GetStatus', {
-        key: key,
         order_id: order_id,
       })
     end
 
     def get_advanced_status(order_id)
       call_payler_api('gapi/GetAdvancedStatus', {
-        key: key,
         order_id: order_id,
       })
     end
 
     def charge(order_id, amount)
       call_payler_api('gapi/Charge', {
-        key: key,
         password: password,
         order_id: order_id,
         amount: amount,
@@ -96,7 +91,6 @@ module RubyPayler
 
     def retrieve(order_id, amount)
       call_payler_api('gapi/Retrieve', {
-        key: key,
         password: password,
         order_id: order_id,
         amount: amount,
@@ -105,7 +99,6 @@ module RubyPayler
 
     def refund(order_id, amount)
       call_payler_api('gapi/Refund', {
-        key: key,
         password: password,
         order_id: order_id,
         amount: amount,
@@ -114,14 +107,12 @@ module RubyPayler
 
     def get_template(recurrent_template_id)
       call_payler_api('gapi/GetTemplate', {
-        key: key,
         recurrent_template_id: recurrent_template_id,
       })
     end
 
     def activate_template(recurrent_template_id, active)
       call_payler_api('gapi/ActivateTemplate', {
-        key: key,
         recurrent_template_id: recurrent_template_id,
         active: active,
       })
@@ -129,7 +120,6 @@ module RubyPayler
 
     def repeat_pay(order_id:, amount:, recurrent_template_id:)
       call_payler_api('gapi/RepeatPay', {
-        key: key,
         order_id: order_id,
         amount: amount,
         recurrent_template_id: recurrent_template_id,
@@ -145,6 +135,7 @@ module RubyPayler
 
     def call_payler_api(endpoint, params)
       remove_nils_from_params!(params)
+      params[:key] = key
 
       begin
         response = connection.post(endpoint, params)
