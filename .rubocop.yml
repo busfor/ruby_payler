@@ -29,3 +29,6 @@ Style/MultilineMethodCallBraceLayout:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
