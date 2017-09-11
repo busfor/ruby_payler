@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # Test that test_page_url methods returns expected url of payment page
-class PayPageUrlTest < ActiveSupport::TestCase
+class PayPageUrlTest < Minitest::Test
   def test_pay_page_url
     key = '123'
     session_id = '321'
