@@ -20,20 +20,20 @@ class CapybaraTestCase < Minitest::Test
 
   def pay_by_capybara(pay_url)
     card = CONFIG.card
-    puts "\n========= Capybara went to pay =========="
+    puts "\n========= Capybara is going to pay =========="
     page.visit(pay_url)
     page.fill_in 'PaylerCardNum', with: card.number
     page.fill_in 'PaylerExpired', with: card.valid_till
     page.fill_in 'PaylerCardholder', with: card.name
     page.fill_in 'PaylerCode', with: card.code
     page.click_button 'PaylerPostButton'
-    puts "========= Capybara paid ==========\n"
+    puts "============= Capybara has paid =============\n"
   end
 
   def pay_by_hand(pay_url)
-    puts "\n========= Please go pay, than press Enter =========="
+    puts "\n===== Please go pay, than press Enter ======="
     puts pay_url
-    puts "====================================================\n"
+    puts "===============================================\n"
     gets
   end
 
