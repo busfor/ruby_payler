@@ -17,32 +17,13 @@ module RubyPayler
       type:,
       order_id:,
       cents:,
-      currency: nil,
-      product: nil,
-      total: nil,
-      template: nil,
-      lang: nil,
-      userdata: nil,
-      recurrent: nil,
-      **pay_page_params
+      **other_session_params
     )
-      pay_page_params.select! do |key, _value|
-        key.to_s.start_with?('pay_page_param_')
-      end
-
-      call_payler_api(
-        'gapi/StartSession',
+      call_payler_api('gapi/StartSession',
         type: type,
         order_id: order_id,
         amount: cents,
-        currency: currency,
-        product: product,
-        total: total,
-        template: template,
-        lang: lang,
-        userdata: userdata,
-        recurrent: recurrent,
-        **pay_page_params,
+        **other_session_params,
       )
     end
 

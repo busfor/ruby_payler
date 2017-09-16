@@ -3,8 +3,9 @@ require_relative 'payler_flow_test'
 
 # Test find_session method use-case
 class FindSessionFlowTest < PaylerFlowTest
-  def test_pass_data_from_start_session_to_find_session
-    session_id = @payler.start_session(
+  # returns created session id
+  def create_session_with_many_params
+    @payler.start_session(
       type: SESSION_TYPES[:one_step],
       order_id: @order_id,
       cents: 777,
@@ -17,6 +18,10 @@ class FindSessionFlowTest < PaylerFlowTest
       pay_page_param_one: 'one',
       pay_page_param_two: 'two',
     ).session_id
+  end
+
+  def test_pass_data_from_start_session_to_find_session
+    session_id = create_session_with_many_params
 
     session_info = @payler.find_session(@order_id)
 
