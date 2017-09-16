@@ -51,6 +51,8 @@ class TemplatesFlowsTest < PaylerFlowTest
 
   def test_recurrent_template_repeat_pay_fail
     expected_error_message = 'Шаблон рекуррентных платежей неактивен.'
+    expected_error_to_s =
+      'RubyPayler::ResponseWithError-27-Шаблон рекуррентных платежей неактивен.'
 
     recurrent_template_id = create_payment_with_recurrent_template
     begin
@@ -62,6 +64,7 @@ class TemplatesFlowsTest < PaylerFlowTest
     rescue ::RubyPayler::ResponseWithError => error
       assert_equal 27, error.code
       assert_equal expected_error_message, error.message
+      assert_equal expected_error_to_s, error.to_s
     end
     assert error
   end
