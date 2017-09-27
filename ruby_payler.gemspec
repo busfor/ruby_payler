@@ -20,6 +20,8 @@ def add_development_dependencies(spec)
   spec.add_development_dependency 'capybara', '~> 2.6', '>= 2.6.2'
   spec.add_development_dependency 'poltergeist', '~> 1.10'
   spec.add_development_dependency 'mocha', '>= 1.2.1'
+  spec.add_development_dependency 'vcr'
+  spec.add_development_dependency 'simplecov'
 end
 
 Gem::Specification.new do |spec|
