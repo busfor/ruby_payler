@@ -5,27 +5,17 @@ require_relative 'payler_flow_test'
 class OneStepPaymentFlowsTest < PaylerFlowTest
   def test_payment_page_contains_product_name_if_passed
     product_name = 'Тестовый продукт'
-    @session_id = @payler.start_session(
-      order_id: @order_id,
-      type: SESSION_TYPES[:two_step],
-      cents: @order_amount,
-      currency: @order_currency,
-      lang: @lang,
-      product: product_name,
-    ).session_id
-    page.visit(@payler.pay_page_url(@session_id))
-    assert page.has_content?(product_name)
-  end
-
-  def test_payment_page_contains_product_id_if_no_name_passed
-    @session_id = @payler.start_session(
-      order_id: @order_id,
-      type: SESSION_TYPES[:two_step],
-      cents: @order_amount,
-      currency: @order_currency,
-      lang: @lang,
-    ).session_id
-    page.visit(@payler.pay_page_url(@session_id))
-    assert page.has_content?(@order_id)
+    VCR.use_cassette('payment_page_with_product_name') do
+      @session_id = @payler.start_session(
+        order_id: @order_id,
+        type: SESSION_TYPES[:two_step],
+        cents: @order_amount,
+        currency: @order_currency,
+        lang: @lang,
+        product: product_name,
+      ).session_id
+      page.visit(@payler.pay_page_url(@session_id))
+      assert page.has_content?(product_name)
+    end
   end
 end
