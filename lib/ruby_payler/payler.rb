@@ -113,15 +113,19 @@ module RubyPayler
 
       begin
         response = connection.post(endpoint, params)
-      rescue Faraday::Error => e
-        raise FailedRequest, e.message
+      rescue Faraday::Error => faraday_error
+        raise RubyPayler::NetworkError, faraday_error
       end
 
-      result = response.body
+      # TODO: так не заходит, надо передумать
+      unless [200, 400, 403, 404, 500].include? response.status
+        raise RubyPayler::UnexpectedHttpResponseStatusError, response.status
+      end
 
-      raise ResponseWithError, result.error if result.error
+      response_body = response.body
+      raise RubyPayler::ResponseError, response_body.error if response_body.error
 
-      result
+      response_body
     end
 
     def remove_nils_from_params!(params)
