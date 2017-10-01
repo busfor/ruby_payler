@@ -6,37 +6,51 @@ module RubyPayler
 
   # Response.body contains error
   class ResponseError < Error
-    attr_reader :error
+    attr_reader :response
 
-    def initialize(error)
-      @error = error
+    def initialize(response)
+      @response = response
     end
 
     # Payler error code
     def code
-      error.code
+      response_error.code
     end
 
     # Payler error description
     def message
-      error.message
+      response_error.message
     end
 
     def to_s
       "Payler responded with error: #{message}, code #{code}"
     end
+
+    private
+
+    def response_error
+      @response_error ||= response.body.error
+    end
   end
 
-  # Unexpected http response status
-  class UnexpectedHttpResponseStatusError < Error
-    attr_reader :code
+  # Unexpected response
+  class UnexpectedResponseError < Error
+    attr_reader :response
 
-    def initialize(code)
-      @code = code
+    def initialize(response)
+      @response = response
+    end
+
+    def code
+      @code ||= response.status
+    end
+
+    def body
+      @body ||= response.body
     end
 
     def message
-      "Payler responded with unexpected HTTP-status: #{code}"
+      "Unexpected response: code - #{code}, body - #{body}"
     end
 
     def to_s

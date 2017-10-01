@@ -49,7 +49,7 @@ class ErrorFlowsTest < PaylerFlowTest
   end
 
   def test_payler_unavailable_code_503
-    expected_error_message = 'Payler responded with unexpected HTTP-status: 503'
+    expected_error_message = 'Unexpected response: code - 503, body - '
 
     failing_connection = Faraday.new do |f|
       f.request :url_encoded # form-encode POST params
@@ -60,10 +60,10 @@ class ErrorFlowsTest < PaylerFlowTest
     end
     ::RubyPayler::Payler.any_instance.stubs(:connection).returns failing_connection
 
-    VCR.use_cassette('payler_unavailable_code_503.yml') do
+    VCR.use_cassette('payler_unexpected_response') do
       begin
         start_session(SESSION_TYPES[:two_step])
-      rescue ::RubyPayler::UnexpectedHttpResponseStatusError => error
+      rescue ::RubyPayler::UnexpectedResponseError => error
         assert_equal 503, error.code
         assert_equal expected_error_message, error.message
         assert_equal expected_error_message, error.to_s
