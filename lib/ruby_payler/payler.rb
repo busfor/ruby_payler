@@ -1,122 +1,123 @@
-require 'faraday'
-require 'faraday_middleware'
+require 'ruby_payler/connection'
 
 module RubyPayler
+  # Wrapper for payler gate api
   class Payler
-    attr_reader :host, :key, :password
+    attr_reader :host, :key, :password, :debug, :payler_url
 
     def initialize(host:, key:, password:, debug: false)
       @host = host
       @key = key
       @password = password
+      @debug = debug
 
-      @connection = Faraday.new(
-        url: "https://#{host}.payler.com",
-        params: { key: @key },
-      ) do |f|
-        f.request  :url_encoded # form-encode POST params
-
-        f.params
-
-        f.response :mashify          # 3. mashify parsed JSON
-        f.response :json             # 2. parse JSON
-        f.response :logger if debug  # 1. log requests to STDOUT
-
-        f.adapter  Faraday.default_adapter  # make requests with Net::HTTP
-      end
+      @payler_url = "https://#{host}.payler.com/gapi/"
     end
 
     def start_session(
-      order_id:,
       type:,
+      order_id:,
       cents:,
-      currency:,
-      lang:,
-      product: nil,
-      userdata: nil
+      **other_session_params
     )
-      params =
-      call_payler_api('gapi/StartSession', {
-        key: key,
+      call_payler_api('StartSession',
         type: type,
         order_id: order_id,
-        currency: currency,
         amount: cents,
-        lang: lang,
-        product: product,
-        userdata: userdata,
-      })
+        **other_session_params,
+      )
+    end
+
+    def find_session(order_id)
+      call_payler_api('FindSession', order_id: order_id)
     end
 
     def pay_page_url(session_id)
-      "#{connection.url_prefix.to_s}gapi/Pay?key=#{key}&session_id=#{session_id}"
+      "#{payler_url}Pay?key=#{key}&session_id=#{session_id}"
     end
 
     def get_status(order_id)
-      call_payler_api('gapi/GetStatus', {
-        key: key,
-        order_id: order_id,
-      })
+      call_payler_api('GetStatus', order_id: order_id)
     end
 
     def get_advanced_status(order_id)
-      call_payler_api('gapi/GetAdvancedStatus', {
-        key: key,
-        order_id: order_id,
-      })
+      call_payler_api('GetAdvancedStatus', order_id: order_id)
     end
 
     def charge(order_id, amount)
-      call_payler_api('gapi/Charge', {
-        key: key,
+      call_payler_api('Charge',
         password: password,
         order_id: order_id,
         amount: amount,
-      })
+      )
     end
 
     def retrieve(order_id, amount)
-      call_payler_api('gapi/Retrieve', {
-        key: key,
+      call_payler_api('Retrieve',
         password: password,
         order_id: order_id,
         amount: amount,
-      })
+      )
     end
 
     def refund(order_id, amount)
-      call_payler_api('gapi/Refund', {
-        key: key,
+      call_payler_api('Refund',
         password: password,
         order_id: order_id,
         amount: amount,
-      })
+      )
+    end
+
+    def get_template(recurrent_template_id)
+      call_payler_api('GetTemplate',
+        recurrent_template_id: recurrent_template_id,
+      )
+    end
+
+    def activate_template(recurrent_template_id, active)
+      call_payler_api('ActivateTemplate',
+        recurrent_template_id: recurrent_template_id,
+        active: active,
+      )
+    end
+
+    def repeat_pay(order_id:, amount:, recurrent_template_id:)
+      call_payler_api('RepeatPay',
+        order_id: order_id,
+        amount: amount,
+        recurrent_template_id: recurrent_template_id,
+      )
     end
 
     private
 
     def connection
-      @connection
-    end
-
-    def remove_nils_from_params!(params)
-      params.delete_if { |k, v| v.nil? }
+      @connection ||= Connection.new(url: payler_url, key: key, debug: debug)
     end
 
     def call_payler_api(endpoint, params)
       remove_nils_from_params!(params)
+      params[:key] = key
 
       begin
         response = connection.post(endpoint, params)
-      rescue Faraday::Error => e
-        raise FailedRequest, e.message
+      rescue Faraday::Error => faraday_error
+        raise RubyPayler::NetworkError, faraday_error
       end
 
-      result = response.body
-      if result.error
-        raise ResponseWithError, result.error
+      response_body = response.body
+      if (response_body.class != Hashie::Mash) ||
+         (response.status != 200 && !response_body.include?(:error))
+        raise RubyPayler::UnexpectedResponseError, response
       end
-      result
+
+      raise RubyPayler::ResponseError, response if response_body.error
+
+      response_body
+    end
+
+    def remove_nils_from_params!(params)
+      params.delete_if { |_key, value| value.nil? }
     end
   end # class Payler
 end # module RubyPayler
