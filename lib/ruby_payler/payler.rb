@@ -11,7 +11,7 @@ module RubyPayler
       @password = password
       @debug = debug
 
-      @payler_url = "https://#{host}.payler.com"
+      @payler_url = "https://#{host}.payler.com/gapi/"
     end
 
     def start_session(
@@ -20,7 +20,7 @@ module RubyPayler
       cents:,
       **other_session_params
     )
-      call_payler_api('gapi/StartSession',
+      call_payler_api('StartSession',
         type: type,
         order_id: order_id,
         amount: cents,
@@ -29,23 +29,23 @@ module RubyPayler
     end
 
     def find_session(order_id)
-      call_payler_api('gapi/FindSession', order_id: order_id)
+      call_payler_api('FindSession', order_id: order_id)
     end
 
     def pay_page_url(session_id)
-      "#{payler_url}/gapi/Pay?key=#{key}&session_id=#{session_id}"
+      "#{payler_url}Pay?key=#{key}&session_id=#{session_id}"
     end
 
     def get_status(order_id)
-      call_payler_api('gapi/GetStatus', order_id: order_id)
+      call_payler_api('GetStatus', order_id: order_id)
     end
 
     def get_advanced_status(order_id)
-      call_payler_api('gapi/GetAdvancedStatus', order_id: order_id)
+      call_payler_api('GetAdvancedStatus', order_id: order_id)
     end
 
     def charge(order_id, amount)
-      call_payler_api('gapi/Charge',
+      call_payler_api('Charge',
         password: password,
         order_id: order_id,
         amount: amount,
@@ -53,7 +53,7 @@ module RubyPayler
     end
 
     def retrieve(order_id, amount)
-      call_payler_api('gapi/Retrieve',
+      call_payler_api('Retrieve',
         password: password,
         order_id: order_id,
         amount: amount,
@@ -61,7 +61,7 @@ module RubyPayler
     end
 
     def refund(order_id, amount)
-      call_payler_api('gapi/Refund',
+      call_payler_api('Refund',
         password: password,
         order_id: order_id,
         amount: amount,
@@ -69,20 +69,20 @@ module RubyPayler
     end
 
     def get_template(recurrent_template_id)
-      call_payler_api('gapi/GetTemplate',
+      call_payler_api('GetTemplate',
         recurrent_template_id: recurrent_template_id,
       )
     end
 
     def activate_template(recurrent_template_id, active)
-      call_payler_api('gapi/ActivateTemplate',
+      call_payler_api('ActivateTemplate',
         recurrent_template_id: recurrent_template_id,
         active: active,
       )
     end
 
     def repeat_pay(order_id:, amount:, recurrent_template_id:)
-      call_payler_api('gapi/RepeatPay',
+      call_payler_api('RepeatPay',
         order_id: order_id,
         amount: amount,
         recurrent_template_id: recurrent_template_id,
