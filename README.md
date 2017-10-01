@@ -1,11 +1,19 @@
 # RubyPayler
-Ruby wrapper for payler.com API
+Ruby wrapper for payler.com Gate API v1.11
 
-_Not all methods, parameters are implemented. There's an issue about that and I'm going to resolve it a bit later._
+_This is not Merchant API_
 
-Documentation for API is here: http://payler.com/docs/acquiring.html
+
+Documentation for API is here: [pdf](http://payler.com/download/docs/%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20Payler%20Gate%20API.pdf) and here: http://payler.com/docs/acquiring.html
 
 Documentation for this gem: http://www.rubydoc.info/gems/ruby_payler/
+
+## Highlights
+- 100% of API methods implemented
+- 100% test coverage
+- tests perform real interactions with Payler API via Capybara and PhantomJs
+- tests work fast and offline with VCR cassettes
+- battle-tested at [busfor](https://busfor.ru), more than 200000 payments processed
 
 ## Installation
 
@@ -76,11 +84,17 @@ See tests for more usage examples
 
 ## Errors
 In case of any error RubyPayler `raises` RubyPayler::Error.
-There are two child types of Errors:
-- FailedRequest - for failed network request (FaradayError)
-- ResponseWithError - for response with status != 200 and error in body
+There are three child types of Errors:
+- ResponseError - for responses with error in body
+- NetworkError - for failed network request
+- UnexpectedResponseError - for responses with status != 200 but without error in body
 
-ResponseWithError objects has methods to access _error_, _code_, _message_ of error returned in resonse.
+All RubyPayler errors have methods _code_, _message_ and _to_s_
+
+Examples of errors `to_s`:
+- ResponseError: `Payler responded with error: Invalid amount of the transaction., code 1`
+- NetworkError: `NetworkError occured while performing request to Payler: #<Faraday::Error: Faraday::Error>`
+- UnexpectedResponseError: `Unexpected response: code - 503, body - `
 
 ## Tests
 *Tests make real calls to Payler.com web API.*
@@ -89,7 +103,19 @@ Cool, because it really test workflows of interaction with payler equiring via r
 
 Payment step in tests is automated with Capybara and PhantomJS (cool as well).
 
-You can switch to make Payment step by hand via config file (use_capybara: false).
+You can also switch to make Payment step by hand via ENV variable.
+
+```bash
+REFRESH_CAPYBARA=1 rake test # Regenerate VCR-cassettes using capybara to pay
+REFRESH_BY_HAND=1 rake test # Regenerate VCR-cassettes paying by hand
+```
+
+After VCR-cassettes are saved launch `rake test` for fast test run
+
+## Coverage
+**Current test coverage is 100%**
+
+To rebuild coverage report use `COVERAGE=1 rake test` command
 
 ## Config
 Make file config.yml by copying config_example.yml
@@ -98,7 +124,10 @@ Fill in your Payler key, password, host
 
 Fill test card number, vaild_till, code, name for automated payment by capybara
 
-Change use_capybara to false to make payment by hand
+## Note on Pay method
+This gem has methods `pay_page_url` instead of `pay` method, mentioned in Payler docs.
+
+This is due to a fact that `pay` method does in fact return payment page url, and does not do any paying.
 
 ## Development
 To run automated tests with capybara install PhantomJS (_brew install phantomjs on MacOS_)
@@ -110,9 +139,11 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
-
 Bug reports and pull requests are welcome on GitHub at https://github.com/busfor/ruby_payler. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
+
+## Changelog
+[Changelog](CHANGELOG.md)
 
 ## License
 
