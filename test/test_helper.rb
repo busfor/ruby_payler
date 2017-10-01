@@ -28,7 +28,7 @@ require 'hashie'
 CONFIG = ::Hashie::Mash.new YAML.safe_load(File.read('test/config.yml')).freeze
 
 if REFRESH_CAPYBARA || REFRESH_BY_HAND
-  FileUtils.rm_rf('fixtures/vcr_cassettes/capybara/.', secure: true)
+  FileUtils.rm_rf('fixtures/vcr_cassettes/.', secure: true)
 end
 
 # Base class for Payment flow where capybara performs payment
