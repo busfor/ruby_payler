@@ -8,8 +8,6 @@ module RubyPayler
       @driver = Faraday.new(url: url, params: { key: key }) do |f|
         f.request :url_encoded # form-encode POST params
 
-        f.params
-
         f.response :mashify          # 3. mashify parsed JSON
         f.response :json             # 2. parse JSON
         f.response :logger if debug  # 1. log requests to STDOUT
