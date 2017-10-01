@@ -29,6 +29,7 @@ class ErrorFlowsTest < PaylerFlowTest
       rescue ::RubyPayler::ResponseError => error
         assert_equal 1, error.code
         assert_equal 'Invalid amount of the transaction.', error.message
+        assert_equal 'Payler responded with error: Invalid amount of the transaction., code 1', error.to_s
       end
       assert error
     end
