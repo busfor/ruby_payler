@@ -1,16 +1,17 @@
-require 'faraday'
-require 'faraday_middleware'
+require 'ruby_payler/connection'
 
 module RubyPayler
   # Wrapper for payler gate api
   class Payler
-    attr_reader :host, :key, :password, :debug
+    attr_reader :host, :key, :password, :debug, :payler_url
 
     def initialize(host:, key:, password:, debug: false)
       @host = host
       @key = key
       @password = password
       @debug = debug
+
+      @payler_url = "https://#{host}.payler.com"
     end
 
     def start_session(
@@ -32,7 +33,7 @@ module RubyPayler
     end
 
     def pay_page_url(session_id)
-      "#{connection.url_prefix}gapi/Pay?key=#{key}&session_id=#{session_id}"
+      "#{payler_url}/gapi/Pay?key=#{key}&session_id=#{session_id}"
     end
 
     def get_status(order_id)
@@ -91,20 +92,7 @@ module RubyPayler
     private
 
     def connection
-      @connection ||= Faraday.new(
-        url: "https://#{host}.payler.com",
-        params: { key: @key },
-      ) do |f|
-        f.request :url_encoded # form-encode POST params
-
-        f.params
-
-        f.response :mashify          # 3. mashify parsed JSON
-        f.response :json             # 2. parse JSON
-        f.response :logger if debug  # 1. log requests to STDOUT
-
-        f.adapter Faraday.default_adapter # make requests with Net::HTTP
-      end
+      @connection ||= Connection.new(url: payler_url, key: key, debug: debug)
     end
 
     def call_payler_api(endpoint, params)
@@ -117,13 +105,13 @@ module RubyPayler
         raise RubyPayler::NetworkError, faraday_error
       end
 
-      # TODO: так не заходит, надо передумать
-      unless [200, 400, 403, 404, 500].include? response.status
-        raise RubyPayler::UnexpectedHttpResponseStatusError, response.status
+      response_body = response.body
+      if (response_body.class != Hashie::Mash) ||
+         (response.status != 200 && !response_body.include?(:error))
+        raise RubyPayler::UnexpectedResponseError, response
       end
 
-      response_body = response.body
-      raise RubyPayler::ResponseError, response_body.error if response_body.error
+      raise RubyPayler::ResponseError, response if response_body.error
 
       response_body
     end
