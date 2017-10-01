@@ -18,13 +18,14 @@ class PaylerFlowTest < CapybaraTestCase
     @status = 'Filled in get_status'
   end
 
-  def start_session(type)
+  def start_session(type, **params)
     @session_id = @payler.start_session(
       order_id: @order_id,
       type: type,
       cents: @order_amount,
       currency: @order_currency,
       lang: @lang,
+      **params,
     ).session_id
   end
 

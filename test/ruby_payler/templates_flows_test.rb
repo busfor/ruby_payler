@@ -5,15 +5,8 @@ require_relative 'payler_flow_test'
 class TemplatesFlowsTest < PaylerFlowTest
   # returns created recurrent_template_id
   def create_payment_with_recurrent_template
-    @session_id = @payler.start_session(
-      type: SESSION_TYPES[:two_step],
-      order_id: @order_id,
-      cents: @order_amount,
-      recurrent: true,
-    ).session_id
-
+    start_session(SESSION_TYPES[:two_step], recurrent: true)
     pay
-
     @payler.get_status(@order_id).recurrent_template_id
   end
 
