@@ -4,7 +4,7 @@ require_relative 'payler_flow_test'
 # Test payment page that payler renders for payment session
 class OneStepPaymentFlowsTest < PaylerFlowTest
   def test_payment_page_contains_product_name_if_passed
-    product_name = 'Тестовый продукт'
+    product_name = 'Test product name'
     VCR.use_cassette('payment_page_with_product_name') do
       @session_id = @payler.start_session(
         order_id: @order_id,
