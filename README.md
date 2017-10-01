@@ -13,7 +13,7 @@ Documentation for this gem: http://www.rubydoc.info/gems/ruby_payler/
 - 100% test coverage
 - tests perform real interactions with Payler API via Capybara and PhantomJs
 - tests work fast and offline with VCR cassettes
-- battle-tested at [busfor](https://busfor.ru), more than 200000 payments processed
+- battle-tested at [busfor.ru](https://busfor.ru), more than 200000 payments processed
 
 ## Installation
 
